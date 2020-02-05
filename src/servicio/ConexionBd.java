@@ -51,12 +51,12 @@ public class ConexionBd {
     public int ejecutarConsultaDML(String consulta){
         try
         {
+           //System.out.println(consulta);
             int n;
-
             Statement stm = conn.createStatement();
             n=stm.executeUpdate(consulta);      
             stm.execute("commit");
-            JOptionPane.showMessageDialog(null, "Copia Exitosa");
+            JOptionPane.showMessageDialog(null, "Añadido correctamente");
             return n;
         }
         catch(SQLException ex)

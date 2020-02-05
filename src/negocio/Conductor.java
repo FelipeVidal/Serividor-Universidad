@@ -15,18 +15,34 @@ public class Conductor {
     private String nombre;
     private String apellido;
     private String rol;
-    private String estado;
+    private String fecha_nacimiento;
+    private String genero;
+
+    public String getFecha_nacimiento() {
+        return fecha_nacimiento;
+    }
+
+    public void setFecha_nacimiento(String fecha_nacimiento) {
+        this.fecha_nacimiento = fecha_nacimiento;
+    }
+
+    public String getGenero() {
+        return genero;
+    }
+
+    public void setGenero(String genero) {
+        this.genero = genero;
+    }
 
     public Conductor() {
     }
 
-    public Conductor(String cedula, String codigo, String nombre, String apellido, String rol, String estado) {
+    public Conductor(String cedula, String codigo, String nombre, String apellido, String rol) {
         this.cedula = cedula;
         this.codigo = codigo;
         this.nombre = nombre;
         this.apellido = apellido;
         this.rol = rol;
-        this.estado = estado;
     }
 
     public String getCedula() {
@@ -69,11 +85,5 @@ public class Conductor {
         this.rol = rol;
     }
 
-    public String getEstado() {
-        return estado;
-    }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
 }

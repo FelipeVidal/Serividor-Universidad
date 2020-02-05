@@ -13,16 +13,18 @@ public class Vigilante {
     private String id;
     private String nombre;
     private String apellido;
-    private String Rol;
+    private String rol;
+    private String estado;
 
     public Vigilante() {
     }
 
-    public Vigilante(String id, String nombre, String apellido, String Rol) {
+    public Vigilante(String id, String nombre, String apellido, String rol,String estado) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
-        this.Rol = Rol;
+        this.rol = rol;
+        this.estado = estado;
     }
 
     public String getId() {
@@ -50,11 +52,19 @@ public class Vigilante {
     }
 
     public String getRol() {
-        return Rol;
+        return rol;
     }
 
-    public void setRol(String Rol) {
-        this.Rol = Rol;
+    public void setRol(String rol) {
+        this.rol = rol;
     }
+    
+    public String getEstado(){
+        return estado;
+    }
+    
+    public void setEstado(String estado){
+       this.estado = estado;
+    } 
     
 }
