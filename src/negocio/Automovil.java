@@ -7,7 +7,7 @@ package negocio;
 
 /**
  *
- * @author Felipe
+ * @author Felipe Vidal y Aldair Zemanate
  */
 public class Automovil {
  private String placa;

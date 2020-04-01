@@ -7,7 +7,7 @@ package servicio;
 
 /**
  *
- * @author Felipe
+ * @author Felipe Vidal y Aldair Zemanate
  */
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -31,7 +31,8 @@ public class ServidorUniversidad implements Runnable {
     private PrintStream salidaDecorada;
     private static final int PUERTO = 5000;
     private static ConexionBd conn;
-
+    
+ 
     public ServidorUniversidad() {
     }
     
@@ -47,9 +48,8 @@ public class ServidorUniversidad implements Runnable {
         new Thread(new ServidorUniversidad()).start();
     }
     private static void crearConexion(){
-         conn = new ConexionBd();
+         conn = ConexionBd.ConexionBd();
          if(conn.newConnection()==null){
-             System.out.print("jaja");
              System.exit(0);
          }       
     }
@@ -123,15 +123,46 @@ public class ServidorUniversidad implements Runnable {
     }
 
     private void procesarAccion(String accion, String id[]) throws SQLException {
+        System.out.println(accion);
         switch (accion) {
+            case "confirmarLogin":
+                ResultSet resultadoEmpleado = null;
+                System.out.println(id[2]);
+                resultadoEmpleado=conn.ejecutarConsultaSelect("select * from VIGILANTE where usuario = '"+id[1]+"'and contrasenia = '"+id[2]+"'");
+                //System.out.println(resultadoEmpleado.first());
+
+                if(resultadoEmpleado.next() && null != resultadoEmpleado){
+                    salidaDecorada.println("vigilante");
+                }else{
+                    resultadoEmpleado=conn.ejecutarConsultaSelect("select * from Administrativo where usuario = '"+id[1]+"'and contrasenia = '"+id[2]+"'");
+                    if(resultadoEmpleado.next() && null != resultadoEmpleado){
+                        salidaDecorada.println("administrativo");
+                    }
+                    else{
+                        salidaDecorada.println("noEncontrado");
+
+                    }
+                }
+                break;
             case "informacionVigilante":
-                System.out.println("Entra confirmar vigilante");
-                ResultSet resultadoVigilante;
-                Vigilante newVigilante;
+                System.out.println("Entra informacion vigilante");
+                ResultSet resultadoVigilante = null;
                 resultadoVigilante=conn.ejecutarConsultaSelect("select * from VIGILANTE where usuario = '"+id[1]+"'and contrasenia = '"+id[2]+"'");
+                Vigilante newVigilante;
                 newVigilante = infoVigilante(resultadoVigilante);
                 salidaDecorada.println(serializarVigilante(newVigilante));
+                
+                
                 break;
+            case "informacionAdministrador":
+                System.out.println("Entra informacion administrativo");
+                ResultSet resultadoAdministrativo = null;
+                resultadoAdministrativo=conn.ejecutarConsultaSelect("select * from Administrativo where usuario = '"+id[1]+"'and contrasenia = '"+id[2]+"'");
+                Administrativo newAdministrativo;
+                newAdministrativo = infoAdministrativo(resultadoAdministrativo);
+                salidaDecorada.println(serializarAdministrativo(newAdministrativo));
+                break;
+                
             case "informacionConductorCedula":
                 System.out.println("Entra consultar conductor cedula");
                 Conductor newConductorCedula;
@@ -177,8 +208,33 @@ public class ServidorUniversidad implements Runnable {
                 break;
             case "vicularAutomovilConductor":
                 System.out.println("Entra vincular vehiculo-conductor");
-                conn.ejecutarConsultaDML("INSERT INTO AUTOMOVIL_CONDUCTOR VALUES ('"+id[1]+"',"+id[2]+")");
+                conn.ejecutarConsultaDML("INSERT INTO AUTOMOVIL_CONDUCTOR VALUES ('"+id[1]+"',"+id[2]+","+id[3]+")");
+                break;
+            case "actualizarMapa":
+                System.out.println("Entra actualizar mapa");
+                ArrayList<Mapa> arrayInfoMapa;
+                ResultSet resultadoInfoMapa;
+                resultadoInfoMapa = conn.ejecutarConsultaSelect("SELECT * FROM GESTION_MAPA WHERE ESTADO_PUESTO = 'Ocupado'");
+                arrayInfoMapa = infoMapa(resultadoInfoMapa);
+                salidaDecorada.println(serializarInfoMapa(arrayInfoMapa));
+                break;
+            case "actualizarBahia":
+                System.out.println("Entra actualizar bahia");
+                conn.ejecutarConsultaDML("UPDATE GESTION_MAPA SET ESTADO_PUESTO = '"+id[1]+"'WHERE NOMBRE_PUESTO = '"+id[2]+"'");
+                break;
+            case "ingresarVigilante":
+                System.out.println("Entra ingresar vigilante ");
+                conn.ejecutarConsultaDML("INSERT INTO VIGILANTE VALUES("+id[1]+",'"+id[2]+"','"+id[3]+"',to_date('"+id[4]+"','YYYY,MM,DD'),'"+id[5]+"','"+id[6]+"','"+id[7]+"','"+id[8]+"')");
+                break;
+            case "registrarMulta":
+                	
+                System.out.println("Entra ingresar vigilante ");
+                conn.ejecutarConsultaDML("INSERT INTO MULTA VALUES("+id[1]+","+"to_date('"+id[2]+"','YYYY-MM-DD HH24:MI'),'"+id[3]+"',"+"null)");
+                break;
         }
+        
+            
+        
     }
     private Vigilante infoVigilante(ResultSet resultadoVigilante) throws SQLException{
         Vigilante newVigilante;
@@ -187,22 +243,36 @@ public class ServidorUniversidad implements Runnable {
            newVigilante.setId(resultadoVigilante.getString("IDENTIFICACION"));
            newVigilante.setNombre(resultadoVigilante.getString("NOMBRE"));
            newVigilante.setApellido(resultadoVigilante.getString("APELLIDO"));
-           newVigilante.setEstado(resultadoVigilante.getString("ESTADO"));
-           newVigilante.setRol(resultadoVigilante.getString("ROL"));
+           newVigilante.setFechaNacimiento(resultadoVigilante.getString("FECHA_NACIMIENTO"));
+           newVigilante.setGenero(resultadoVigilante.getString("GENERO"));
+           newVigilante.setEmpresa(resultadoVigilante.getString("EMPRESA"));
         }
         return newVigilante;
+    }
+   
+        private Administrativo infoAdministrativo(ResultSet resultadoAdministrativo) throws SQLException{
+        Administrativo newAdministrativo;
+        newAdministrativo = new Administrativo();
+        while(resultadoAdministrativo.next()){
+           newAdministrativo.setId(resultadoAdministrativo.getString("IDENTIFICACION"));
+           newAdministrativo.setNombre(resultadoAdministrativo.getString("NOMBRE"));
+           newAdministrativo.setApellido(resultadoAdministrativo.getString("APELLIDO"));
+           newAdministrativo.setFechaNacimiento(resultadoAdministrativo.getString("FECHA_NACIMIENTO"));
+           newAdministrativo.setGenero(resultadoAdministrativo.getString("GENERO"));
+        }
+        return newAdministrativo;
     }
     private Conductor infoConductor(ResultSet resultadoConductor) throws SQLException{
         Conductor newConductor;
         newConductor = new Conductor();
          while(resultadoConductor.next()){
-                newConductor.setFecha_nacimiento(resultadoConductor.getString("FECHA_NACIMIENTO"));
+                newConductor.setFechaNacimiento(resultadoConductor.getString("FECHA_NACIMIENTO"));
                 newConductor.setGenero(resultadoConductor.getString("GENERO"));
-                newConductor.setCedula(resultadoConductor.getString("CEDULA"));
+                newConductor.setId(resultadoConductor.getString("CEDULA"));
                 newConductor.setCodigo(resultadoConductor.getString("CODIGO"));
                 newConductor.setNombre(resultadoConductor.getString("NOMBRE"));
                 newConductor.setApellido(resultadoConductor.getString("APELLIDO"));
-                newConductor.setRol(resultadoConductor.getString("ROL"));
+                newConductor.setGenero(resultadoConductor.getString("GENERO"));
                     
         }
          return newConductor;
@@ -220,7 +290,20 @@ public class ServidorUniversidad implements Runnable {
         }
         return listadoAutomoviles;
     }
-    
+    public ArrayList infoMapa(ResultSet resultadoInfoMapa) throws SQLException{
+        ArrayList<Mapa> listaInfoMapa;
+        Mapa newMapa;
+        listaInfoMapa = new ArrayList();
+        while(resultadoInfoMapa.next()){
+            newMapa = new Mapa();
+            newMapa.setEstado(resultadoInfoMapa.getString("estado_puesto"));
+            System.out.println("jajaj");
+            newMapa.setNombrePuesto(resultadoInfoMapa.getString("nombre_puesto"));
+            listaInfoMapa.add(newMapa);
+            
+        }
+        return listaInfoMapa;
+    }
     public String serializarAutomovil(ArrayList<Automovil> listadoAutomovil ){
            JsonArray array = new JsonArray();
            JsonObject gsonObj;
@@ -239,8 +322,9 @@ public class ServidorUniversidad implements Runnable {
         gsonObj.addProperty("id", vigilante.getId());
         gsonObj.addProperty("nombre", vigilante.getNombre());
         gsonObj.addProperty("apellido", vigilante.getApellido());
-        gsonObj.addProperty("estado", vigilante.getEstado());
-        gsonObj.addProperty("rol", vigilante.getRol());
+        gsonObj.addProperty("fechaNacimieto", vigilante.getFechaNacimiento());
+        gsonObj.addProperty("genero", vigilante.getGenero());
+        gsonObj.addProperty("empresa", vigilante.getEmpresa());
         return gsonObj.toString();
         
     }
@@ -248,16 +332,39 @@ public class ServidorUniversidad implements Runnable {
     public String serializarConductor(Conductor conductor){
         JsonObject gsonObj;
         gsonObj =  new JsonObject();
-        gsonObj.addProperty("cedula", conductor.getCedula());
+        gsonObj.addProperty("cedula", conductor.getId());
         gsonObj.addProperty("codigo",conductor.getCodigo());
         gsonObj.addProperty("nombre",conductor.getNombre());
         gsonObj.addProperty("apellido",conductor.getApellido());
         gsonObj.addProperty("rol",conductor.getRol());
-        gsonObj.addProperty("fecha_nacimiento", conductor.getFecha_nacimiento());
+        gsonObj.addProperty("fecha_nacimiento", conductor.getFechaNacimiento());
         gsonObj.addProperty("genero", conductor.getGenero());
         return gsonObj.toString();
     }
     
+    public String serializarAdministrativo(Administrativo administrativo){
+        JsonObject gsonObj;
+        gsonObj =  new JsonObject();
+        gsonObj.addProperty("id", administrativo.getId());;
+        gsonObj.addProperty("nombre",administrativo.getNombre());
+        gsonObj.addProperty("apellido",administrativo.getApellido());
+        gsonObj.addProperty("fechaNacimiento", administrativo.getFechaNacimiento());
+        gsonObj.addProperty("genero", administrativo.getGenero());
+        return gsonObj.toString();
+    }
+       
+    public String serializarInfoMapa(ArrayList<Mapa> infoMapa) {
+        JsonArray array = new JsonArray();
+        JsonObject gsonObj;
+        for(Mapa mapa : infoMapa){
+               gsonObj = new JsonObject();
+               gsonObj.addProperty("nombrePuesto", mapa.getNombrePuesto());
+               System.out.println(mapa.getNombrePuesto());
+               gsonObj.addProperty("estado",mapa.getEstado());
+               array.add(gsonObj);
+           }       
+        return array.toString();
+       }  
     
     
 }

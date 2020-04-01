@@ -7,24 +7,23 @@ package negocio;
 
 /**
  *
- * @author Felipe
+ * @author Felipe Vidal y Aldair Zemanate
  */
-public class Vigilante {
+public abstract  class Persona {
     private String id;
     private String nombre;
     private String apellido;
-    private String rol;
-    private String estado;
-
-    public Vigilante() {
+    private String fechaNacimiento;
+    private String genero;
+    public Persona() {
     }
 
-    public Vigilante(String id, String nombre, String apellido, String rol,String estado) {
+    public Persona(String id, String nombre, String apellido,String fechaNacimiento,String genero) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
-        this.rol = rol;
-        this.estado = estado;
+        this.fechaNacimiento = fechaNacimiento;
+        this.genero = genero;
     }
 
     public String getId() {
@@ -51,20 +50,21 @@ public class Vigilante {
         this.apellido = apellido;
     }
 
-    public String getRol() {
-        return rol;
+    public String getFechaNacimiento() {
+        return fechaNacimiento;
     }
 
-    public void setRol(String rol) {
-        this.rol = rol;
+    public void setFechaNacimiento(String fechaNacimiento) {
+        this.fechaNacimiento = fechaNacimiento;
+    }
+
+    public String getGenero() {
+        return genero;
+    }
+
+    public void setGenero(String genero) {
+        this.genero = genero;
     }
     
-    public String getEstado(){
-        return estado;
-    }
-    
-    public void setEstado(String estado){
-       this.estado = estado;
-    } 
     
 }

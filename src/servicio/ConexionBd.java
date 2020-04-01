@@ -7,7 +7,7 @@ package servicio;
 
 /**
  *
- * @author Felipe
+ * @author Felipe Vidal y Aldair Zemanate
  */
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -16,8 +16,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import javax.swing.JOptionPane;
 public class ConexionBd {
-    private static Connection conn = null;
-    public void ConexionBd() {
+    private Connection conn = null;
+    private static ConexionBd conexion;
+    public static ConexionBd ConexionBd() {
+        if(conexion == null) {
+            conexion = new ConexionBd();
+        }
+        return conexion;
     }
     public Connection newConnection(){
         try {
@@ -49,9 +54,9 @@ public class ConexionBd {
         }    
     }
     public int ejecutarConsultaDML(String consulta){
+        System.out.println(consulta);
         try
         {
-           //System.out.println(consulta);
             int n;
             Statement stm = conn.createStatement();
             n=stm.executeUpdate(consulta);      
